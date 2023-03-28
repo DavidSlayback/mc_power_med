@@ -15,8 +15,8 @@ fluidPage(theme = 'spacelab.css', #id = "page",
   withTags(
     header(
       h3("Monte Carlo Power Analysis for Indirect Effects"),
-      p("Written by Alexander M. Schoemann (",
-        a(href="mailto:schoemanna@ecu.edu","Contact"),
+      p("Modified by David Slayback (",
+        a(href="mailto:david@offerfit.ai","Contact"),
         "), Aaron J. Boulton, & Stephen D. Short")
     )
   ),
@@ -43,7 +43,8 @@ fluidPage(theme = 'spacelab.css', #id = "page",
                            choices = list("One Mediator" = "one_mediator",
                                           "Two Parallel Mediators" = "two_parallel_mediators",
                                           "Two Serial Mediators" = "two_serial_mediators", 
-                                          "Three Parallel Mediators" = "three_parallel_mediators"), 
+                                          "Three Parallel Mediators" = "three_parallel_mediators",
+                                          "Moderated Mediation (Model 7)" = "mod_med_7"), 
                            selected = "one_mediator"))
           )
         ),

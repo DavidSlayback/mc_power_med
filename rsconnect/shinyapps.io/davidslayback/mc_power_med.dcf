@@ -1,12 +1,13 @@
-name: mc_power_med_mod
-title: mc_power_med_mod
+name: mc_power_med
+title: mc_power_med
 username:
 account: davidslayback
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
-appId: 115293
-bundleId: 2778375
+appId: 8702770
+bundleId: 7020754
 url: https://davidslayback.shinyapps.io/mc_power_med/
-when: 1580954389.11061
+when: 1680043646.93664
+lastSyncTime: 1680043646.93664
 asMultiple: FALSE
 asStatic: FALSE

@@ -41,10 +41,12 @@ if (obj == "choose_power") {
 corwx <- as.numeric(input$corwx)
 corxwx <- as.numeric(input$corxwx)
 corxww <- as.numeric(input$corxww)
-cormx <- as.numeric(input$corrmx)
-cormw <- as.numeric(input$corrmw)
+cormx <- as.numeric(input$cormx)
+cormw <- as.numeric(input$cormw)
 cormxw <- as.numeric(input$cormxw)
 coryx <- as.numeric(input$coryx)
+coryw <- as.numeric(input$coryw)
+coryxw <- as.numeric(input$coryxw)
 corym <- as.numeric(input$corym)
 
 # if(abs(cor21)> .999 | abs(cor31)> .999 | abs(cor32)> .999) {
@@ -52,13 +54,37 @@ corym <- as.numeric(input$corym)
 #      check your inputs and try again")
 # }
 # Create correlation matrix
-corMat <- diag(4)
-corMat[2,1] <- cor21
-corMat[1,2] <- cor21
-corMat[3,1] <- cor31
-corMat[1,3] <- cor31
-corMat[2,3] <- cor32
-corMat[3,2] <- cor32
+corMat <- diag(5)
+# xw
+corMat[2,1] <- corwx
+corMat[1,2] <- corwx
+# xxw
+corMat[3,1] <- corxwx
+corMat[1,3] <- corxwx
+# xm
+corMat[1,4] <- cormx
+corMat[4,1] <- cormx
+# xy
+corMat[1,5] <- coryx
+corMat[5,1] <- coryx
+# wxw
+corMat[2,3] <- corxww
+corMat[3,2] <- corxww
+# wm
+corMat[2,4] <- cormw
+corMat[4,2] <- cormw
+# wy
+corMat[2,5] <- coryw
+corMat[5,2] <- coryw
+# xwm
+corMat[3,4] <- cormxw
+corMat[4,3] <- cormxw
+# xwy
+corMat[3,5] <- coryxw
+corMat[5,3] <- coryxw
+# my
+corMat[4,5] <- corym
+corMat[5,4] <- corym
 # } 
 # else {
 #   
@@ -84,15 +110,16 @@ corMat[3,2] <- cor32
 
 #--- CONVERT / CHECK COVARIANCE MATRIX ----------------------------------------#
 SDX <- as.numeric(input$SDX)
-SDX <- as.numeric(input$SDW)
+SDW <- as.numeric(input$SDW)
+SDXW <- SDX * SDW # SDX * SDW + SDX * AvgY^2 + SDY * AvgX^2, but we assume mean is 0
 SDM <- as.numeric(input$SDM)
 SDY <- as.numeric(input$SDY)
 
 # Get diagonal matrix of SDs
-SDs <- diag(c(SDX, SDW, SDM, SDY))
+SDs <- diag(c(SDX, SDW, SDXW, SDM, SDY))
 
 # Convert to covariance matrix
-covMat <- SDs %*% corMat %*% SDs
+covMat <- SDs %*% corMat %*% SDs  # Matrix multiply
 
 # CHECK: Is the input covariance matrix positive definite
 if (all(eigen(covMat)$values > 0) == F) {
@@ -153,10 +180,6 @@ if (mcmcReps < 5 | !abs(mcmcReps - round(mcmcReps)) < .Machine$double.eps ^ 0.5)
   stop("\"Monte Carlo Draws per Rep\" must be an integer greater than 5. Please change this value.")
 }
 
-# CHECK: Is the seed > 5 and an integer?
-#if (mcmcReps < 5 | !abs(mcmcReps - round(mcmcReps)) < .Machine$double.eps ^ 0.5) {
-#  stop("\"Monte Carlo Draws per Rep\" must be an integer greater than 5")
-#}
 
 # CHECK: Is the confidence level (%) between 0 and 100?
 if (conf < 0 | conf > 100) {
@@ -176,11 +199,11 @@ if (input$obj == "choose_n") {
       
       incProgress(1 / powReps)
       
-      dat <- mvrnorm(Ns, mu = c(0,0,0), Sigma = covMatp)
+      dat <- mvrnorm(Ns, mu = c(0,0,0,0,0), Sigma = covMatp)
       
       # Run regressions
-      m1 <- lm(dat[,2] ~ dat[,1])
-      m2 <- lm(dat[,3] ~ dat[,2] + dat[,1])
+      m1 <- lm(dat[,4] ~ dat[,1] + dat[,2] + dat[,3])  # m from x, w, xw
+      m2 <- lm(dat[,3] ~ dat[,1] + dat[,4])  # y from x, m
       
       # Output parameter estimates and standard errors
       pest <- c(coef(m1)[2], coef(m2)[2])
@@ -223,10 +246,10 @@ if (input$obj == "choose_n") {
       
       incProgress(1 / powReps)
       
-      dat <- mvrnorm(Ns, mu = c(0, 0, 0), Sigma = covMatp)
+      dat <- mvrnorm(Ns, mu = c(0,0,0,0,0), Sigma = covMatp)
       # Run regressions
-      m1 <- lm(dat[,2] ~ dat[,1])
-      m2 <- lm(dat[,3] ~ dat[,2] + dat[,1])
+      m1 <- lm(dat[,4] ~ dat[,1] + dat[,2] + dat[,3])  # m from x, w, xw
+      m2 <- lm(dat[,3] ~ dat[,1] + dat[,4])  # y from x, m
       
       # Output parameter estimates and standard errors
       pest <- c(coef(m1)[2], coef(m2)[2])
